@@ -1,0 +1,19 @@
+Data:
+  name: data
+  in: query
+  required: true
+  description: Data de movimento. Ausente ou fora do formato => 400.
+  schema:
+    type: string
+    format: date
+    example: '2026-10-25'
+
+Transportadora:
+  name: transportadora
+  in: query
+  required: false
+  description: >-
+    Código da transportadora (vazio equivale a não informado). Quando informado, a chave única é buscada no banco
+    e enviada ao backend; sem chave cadastrada => 400.
+  schema:
+    type: string

@@ -1,0 +1,9 @@
+Centralizador:
+  description: Registros do centralizador, repassados como vêm da API de centralizadores.
+  content:
+    application/json:
+      schema:
+        $ref: ../schemas/centralizadores.yaml#/CentralizadorResponse
+      examples:
+        centralizador:
+          $ref: ../examples/centralizadores.yaml#/Centralizador

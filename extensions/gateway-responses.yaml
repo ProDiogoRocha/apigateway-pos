@@ -1,0 +1,46 @@
+# Respostas geradas pelo próprio API Gateway (a Lambda não é invocada).
+# Todas levam o header CORS (senão o front não lê o erro); um tipo declarado aqui não herda os
+# parâmetros do DEFAULT_4XX/5XX, por isso o header se repete.
+# As mais comuns seguem o formato de erro da Lambda: { "messages": [{ "codigo", "mensagem" }] }.
+
+# Rota ou método inexistente: o API Gateway responderia 403 "Missing Authentication Token".
+MISSING_AUTHENTICATION_TOKEN:
+  statusCode: '404'
+  responseParameters:
+    gatewayresponse.header.Access-Control-Allow-Origin: "'${cors_allowed_origin}'"
+  responseTemplates:
+    application/json: '{"messages":[{"codigo":"404","mensagem":"Recurso inexistente."}]}'
+
+THROTTLED:
+  statusCode: '429'
+  responseParameters:
+    gatewayresponse.header.Access-Control-Allow-Origin: "'${cors_allowed_origin}'"
+  responseTemplates:
+    application/json: '{"messages":[{"codigo":"429","mensagem":"Limite de requisicoes excedido."}]}'
+
+INTEGRATION_FAILURE:
+  statusCode: '502'
+  responseParameters:
+    gatewayresponse.header.Access-Control-Allow-Origin: "'${cors_allowed_origin}'"
+  responseTemplates:
+    application/json: '{"messages":[{"codigo":"502","mensagem":"Erro interno."}]}'
+
+INTEGRATION_TIMEOUT:
+  statusCode: '504'
+  responseParameters:
+    gatewayresponse.header.Access-Control-Allow-Origin: "'${cors_allowed_origin}'"
+  responseTemplates:
+    application/json: '{"messages":[{"codigo":"504","mensagem":"Tempo de resposta excedido."}]}'
+
+# Demais erros do API Gateway (ex.: 403 da API privada): corpo padrão da AWS, só acrescenta CORS.
+DEFAULT_4XX:
+  responseParameters:
+    gatewayresponse.header.Access-Control-Allow-Origin: "'${cors_allowed_origin}'"
+  responseTemplates:
+    application/json: '{"message":$context.error.messageString}'
+
+DEFAULT_5XX:
+  responseParameters:
+    gatewayresponse.header.Access-Control-Allow-Origin: "'${cors_allowed_origin}'"
+  responseTemplates:
+    application/json: '{"message":$context.error.messageString}'

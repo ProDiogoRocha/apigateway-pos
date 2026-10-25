@@ -1,0 +1,21 @@
+Centralizador:
+  summary: Um registro
+  value:
+    totalRegistros: '1'
+    registros:
+      - codigoCentralizador: '10'
+        codigoFornecedor: '20'
+        codigoBaseFornecedor: '30'
+        nomeBaseFornecedor: Base Centro
+        codigoPoloCentralizador: '40'
+        nomePoloCentralizador: Polo Sul
+        codigoSubPoloCentralizador: null
+        nomeSubPoloCentralizador: null
+        indicadorSituacaoOrgao: A
+        descricaoSituacaoOrgao: Ativo
+        codigoSituacaoBloqueioMoedaEstrangeira: N
+        descricaoBloqueioMoedaEstrangeira: Sem bloqueio
+        matriz: S
+        agenciaCustodianteBb: null
+        tipoBase: P
+        descricaoTipoBase: Própria

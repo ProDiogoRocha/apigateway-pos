@@ -1,0 +1,39 @@
+IndiceControlePosicao:
+  name: indiceControlePosicao
+  in: path
+  required: true
+  description: Índice de controle da posição no ECS.
+  schema:
+    type: string
+
+NumeroCentralizador:
+  name: numeroCentralizador
+  in: path
+  required: true
+  description: Número do centralizador.
+  schema:
+    type: string
+
+FornecedorId:
+  name: fornecedorId
+  in: path
+  required: true
+  description: Identificador do fornecedor.
+  schema:
+    type: string
+
+BaseId:
+  name: baseId
+  in: path
+  required: true
+  description: Identificador da base do fornecedor.
+  schema:
+    type: string
+
+PoloId:
+  name: poloId
+  in: path
+  required: true
+  description: Identificador do polo.
+  schema:
+    type: string

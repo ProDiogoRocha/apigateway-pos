@@ -1,0 +1,18 @@
+MessagesResponse:
+  type: object
+  required: [messages]
+  properties:
+    messages:
+      type: array
+      items:
+        $ref: '#/Message'
+
+Message:
+  type: object
+  required: [codigo, mensagem]
+  properties:
+    codigo:
+      type: string
+      description: 'Status HTTP como texto, por exemplo "400".'
+    mensagem:
+      type: string

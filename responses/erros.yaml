@@ -1,0 +1,68 @@
+BadRequest:
+  description: >-
+    Headers, parâmetros ou body inválidos, transportadora sem chave cadastrada,
+    ou erro 400 devolvido pelo backend.
+  content:
+    application/json:
+      schema:
+        $ref: ../schemas/erros.yaml#/MessagesResponse
+      example:
+        messages:
+          - codigo: '400'
+            mensagem: 'Headers obrigatorios ausentes: x-itau-apikey e x-itau-correlationID.'
+
+NotFound:
+  description: Rota inexistente (respondida pelo API Gateway) ou recurso não encontrado no backend.
+  content:
+    application/json:
+      schema:
+        $ref: ../schemas/erros.yaml#/MessagesResponse
+      example:
+        messages:
+          - codigo: '404'
+            mensagem: Recurso inexistente.
+
+InternalServerError:
+  description: Erro inesperado no BFF ou erro do backend diferente de 400/404 (mensagem do backend repassada).
+  content:
+    application/json:
+      schema:
+        $ref: ../schemas/erros.yaml#/MessagesResponse
+      example:
+        messages:
+          - codigo: '500'
+            mensagem: Erro interno.
+
+# Os três abaixo são gerados pelo próprio API Gateway (extensions/gateway-responses.yaml).
+TooManyRequests:
+  description: Limite de requisições do API Gateway excedido.
+  content:
+    application/json:
+      schema:
+        $ref: ../schemas/erros.yaml#/MessagesResponse
+      example:
+        messages:
+          - codigo: '429'
+            mensagem: Limite de requisicoes excedido.
+
+BadGateway:
+  description: Falha ao invocar a Lambda.
+  content:
+    application/json:
+      schema:
+        $ref: ../schemas/erros.yaml#/MessagesResponse
+      example:
+        messages:
+          - codigo: '502'
+            mensagem: Erro interno.
+
+GatewayTimeout:
+  description: A Lambda não respondeu em 29s.
+  content:
+    application/json:
+      schema:
+        $ref: ../schemas/erros.yaml#/MessagesResponse
+      example:
+        messages:
+          - codigo: '504'
+            mensagem: Tempo de resposta excedido.

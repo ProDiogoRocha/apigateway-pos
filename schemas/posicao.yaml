@@ -1,0 +1,147 @@
+ConsultaCardsResponse:
+  type: object
+  required: [cards]
+  properties:
+    cards:
+      type: array
+      items:
+        $ref: '#/CardPosicao'
+
+CardPosicao:
+  type: object
+  properties:
+    indiceControlePosicao:
+      type: string
+    posicao:
+      type: string
+      description: Número da posição no ECS.
+    tipo:
+      type: string
+      description: Descrição da posição no ECS.
+    saldo:
+      type: number
+    operador:
+      type: string
+      description: Fixo, vem da env BFF_DEFAULT_OPERADOR da Lambda (padrão NA); o ECS não informa.
+    data:
+      type: string
+      description: Data de cadastro, no formato devolvido pelo ECS.
+    hora:
+      type: string
+    situacao:
+      type: string
+    saldoAnterior:
+      type: number
+    saldoCustodia:
+      type: array
+      items:
+        $ref: '#/SaldoCustodia'
+    cedulas:
+      type: array
+      items:
+        $ref: '#/Cedula'
+    moedas:
+      type: array
+      items:
+        $ref: '#/Moeda'
+    resumo:
+      $ref: '#/Resumo'
+    justificativaTermoJuridico:
+      type: string
+    justificativaDivergenciasMovimentacoes:
+      type: string
+    justificativaDivergenciaPadrao:
+      type: string
+
+SaldoCustodia:
+  type: object
+  properties:
+    bloco:
+      type: string
+    entradasValor:
+      type: number
+    entradasDivergencia:
+      type: number
+    saidasValor:
+      type: number
+    saidasDivergencia:
+      type: number
+
+Cedula:
+  type: object
+  properties:
+    textoCedula:
+      type: string
+      description: Classificação da cédula ou, sem ela, o valor de face.
+    valorCedulasBoas:
+      type: number
+    valorDilacerado:
+      type: number
+      description: Sempre 0, o ECS não informa.
+    valorEntintado:
+      type: number
+      description: Sempre 0, o ECS não informa.
+    divergencia:
+      type: number
+
+Moeda:
+  type: object
+  properties:
+    textoMoeda:
+      type: string
+      description: Classificação da moeda ou, sem ela, o valor de face.
+    valor:
+      type: number
+    divergencia:
+      type: number
+
+Resumo:
+  type: object
+  properties:
+    saldoAtualMovimentacoes:
+      type: number
+    totalDivergenciasMovimentacoes:
+      type: number
+    totalDivergencia:
+      type: number
+    saldoAtualNaBase:
+      type: number
+
+ReverterFechamentoRequest:
+  type: object
+  required: [codigoTipoPosicao]
+  properties:
+    codigoTipoPosicao:
+      type: string
+
+ReverterFechamentoResponse:
+  type: object
+  properties:
+    sucesso:
+      type: boolean
+    mensagem:
+      type: string
+    indiceControlePosicao:
+      type: string
+
+JustificativaDivergencias:
+  type: object
+  properties:
+    indiceControlePosicao:
+      type: string
+    totalDivergenciasMovimentacoes:
+      type: number
+    justificativaDivergenciasMovimentacoes:
+      type: string
+    totalDivergenciaPadrao:
+      type: number
+    justificativaDivergenciaPadrao:
+      type: string
+
+TermoJuridico:
+  type: object
+  properties:
+    indiceControlePosicao:
+      type: string
+    justificativaTermoJuridico:
+      type: string

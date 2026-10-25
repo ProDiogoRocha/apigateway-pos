@@ -1,0 +1,26 @@
+XItauApiKey:
+  name: x-itau-apikey
+  in: header
+  required: true
+  description: Chave de consumo da API. Ausente ou vazia => 400.
+  schema:
+    type: string
+
+XItauCorrelationId:
+  name: x-itau-correlationID
+  in: header
+  required: true
+  description: Identificador de correlação, repassado ao backend. Ausente ou vazio => 400.
+  schema:
+    type: string
+
+ChaveUnica:
+  name: chave-unica
+  in: header
+  required: false
+  description: >-
+    Chave única da transportadora repassada ao backend. Ignorada quando o parâmetro
+    `transportadora` é informado (a chave vem do banco). Sem nenhum dos dois, vale a
+    chave padrão configurada na Lambda.
+  schema:
+    type: string

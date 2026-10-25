@@ -1,0 +1,63 @@
+CentralizadorResponse:
+  type: object
+  properties:
+    totalRegistros:
+      type: string
+      nullable: true
+    registros:
+      type: array
+      nullable: true
+      items:
+        $ref: '#/CentralizadorRegistro'
+
+CentralizadorRegistro:
+  type: object
+  properties:
+    codigoCentralizador:
+      type: string
+      nullable: true
+    codigoFornecedor:
+      type: string
+      nullable: true
+    codigoBaseFornecedor:
+      type: string
+      nullable: true
+    nomeBaseFornecedor:
+      type: string
+      nullable: true
+    codigoPoloCentralizador:
+      type: string
+      nullable: true
+    nomePoloCentralizador:
+      type: string
+      nullable: true
+    codigoSubPoloCentralizador:
+      type: string
+      nullable: true
+    nomeSubPoloCentralizador:
+      type: string
+      nullable: true
+    indicadorSituacaoOrgao:
+      type: string
+      nullable: true
+    descricaoSituacaoOrgao:
+      type: string
+      nullable: true
+    codigoSituacaoBloqueioMoedaEstrangeira:
+      type: string
+      nullable: true
+    descricaoBloqueioMoedaEstrangeira:
+      type: string
+      nullable: true
+    matriz:
+      type: string
+      nullable: true
+    agenciaCustodianteBb:
+      type: string
+      nullable: true
+    tipoBase:
+      type: string
+      nullable: true
+    descricaoTipoBase:
+      type: string
+      nullable: true

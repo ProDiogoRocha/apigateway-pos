@@ -1,0 +1,59 @@
+ConsultaCards:
+  summary: Uma posição na data
+  value:
+    cards:
+      - indiceControlePosicao: '000123'
+        posicao: '1'
+        tipo: Fechamento diário
+        saldo: 150000
+        operador: NA
+        data: '2026-10-25'
+        hora: '18:30:00'
+        situacao: Fechada
+        saldoAnterior: 120000
+        saldoCustodia:
+          - bloco: Recolhimento
+            entradasValor: 50000
+            entradasDivergencia: 0
+            saidasValor: 20000
+            saidasDivergencia: 0
+        cedulas:
+          - textoCedula: '100'
+            valorCedulasBoas: 100000
+            valorDilacerado: 0
+            valorEntintado: 0
+            divergencia: 0
+        moedas:
+          - textoMoeda: '1'
+            valor: 500
+            divergencia: 0
+        resumo:
+          saldoAtualMovimentacoes: 150000
+          totalDivergenciasMovimentacoes: 0
+          totalDivergencia: 0
+          saldoAtualNaBase: 150000
+        justificativaTermoJuridico: ''
+        justificativaDivergenciasMovimentacoes: ''
+        justificativaDivergenciaPadrao: ''
+
+ReverterFechamento:
+  summary: Fechamento revertido
+  value:
+    sucesso: true
+    mensagem: Reversao realizada com sucesso
+    indiceControlePosicao: '000123'
+
+JustificativaDivergencias:
+  summary: Divergências da posição
+  value:
+    indiceControlePosicao: '000123'
+    totalDivergenciasMovimentacoes: 200
+    justificativaDivergenciasMovimentacoes: Malote conferido com diferença.
+    totalDivergenciaPadrao: 0
+    justificativaDivergenciaPadrao: ''
+
+TermoJuridico:
+  summary: Justificativa do termo jurídico
+  value:
+    indiceControlePosicao: '000123'
+    justificativaTermoJuridico: Termo assinado pela transportadora.

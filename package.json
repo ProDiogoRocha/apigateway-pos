@@ -1,0 +1,14 @@
+{
+  "name": "itau-ln-infra-bff-posicao-apigateway",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint": "redocly lint itau-ln-infra-bff-posicao-apigateway.yaml",
+    "bundle": "redocly bundle itau-ln-infra-bff-posicao-apigateway.yaml --dereferenced --output dist/openapi.json",
+    "test": "npm run bundle && node --test \"tests/*.test.mjs\"",
+    "test:infra": "npm run bundle && terraform -chdir=infra test"
+  },
+  "devDependencies": {
+    "@redocly/cli": "2.71.0"
+  }
+}

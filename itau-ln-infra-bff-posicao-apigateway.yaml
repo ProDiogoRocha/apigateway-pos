@@ -1,0 +1,373 @@
+openapi: 3.0.1
+info:
+  title: itau-ln-infra-bff-posicao-apigateway
+  version: 1.0.0
+  description: >-
+    API Gateway do BFF de posição de transportadoras. Todas as rotas são repassadas
+    para a Lambda Itau.LN.App.Bff.Posicao (integração proxy). O preflight CORS (OPTIONS)
+    é respondido pelo próprio API Gateway.
+servers:
+  - url: https://{apiId}.execute-api.{region}.amazonaws.com/{stage}
+    variables:
+      apiId:
+        default: api-id
+      region:
+        default: sa-east-1
+      stage:
+        default: v1
+tags:
+  - name: Posicao
+    description: Posição das transportadoras (ECS).
+  - name: Centralizadores
+    description: Consulta de centralizadores, fornecedores, bases e polos.
+  - name: CORS
+    description: Preflight respondido pelo API Gateway, sem invocar a Lambda.
+
+x-amazon-apigateway-gateway-responses:
+  $ref: ./extensions/gateway-responses.yaml
+
+paths:
+  /posicao-transportadores:
+    get:
+      tags: [Posicao]
+      operationId: consultarCards
+      summary: Cards de posição da data de movimento.
+      parameters:
+        - $ref: ./parameters/headers.yaml#/XItauApiKey
+        - $ref: ./parameters/headers.yaml#/XItauCorrelationId
+        - $ref: ./parameters/headers.yaml#/ChaveUnica
+        - $ref: ./parameters/query.yaml#/Transportadora
+        - $ref: ./parameters/query.yaml#/Data
+      responses:
+        '200':
+          description: Um card por posição da data, na ordem devolvida pelo ECS.
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/posicao.yaml#/ConsultaCardsResponse
+              examples:
+                cards:
+                  $ref: ./examples/posicao.yaml#/ConsultaCards
+        '400':
+          $ref: ./responses/erros.yaml#/BadRequest
+        '404':
+          $ref: ./responses/erros.yaml#/NotFound
+        '500':
+          $ref: ./responses/erros.yaml#/InternalServerError
+        '429':
+          $ref: ./responses/erros.yaml#/TooManyRequests
+        '502':
+          $ref: ./responses/erros.yaml#/BadGateway
+        '504':
+          $ref: ./responses/erros.yaml#/GatewayTimeout
+      x-amazon-apigateway-integration:
+        $ref: ./extensions/lambda-proxy.yaml
+    options:
+      tags: [CORS]
+      operationId: preflightConsultarCards
+      summary: Preflight CORS.
+      responses:
+        '200':
+          $ref: ./responses/cors.yaml#/Preflight
+      x-amazon-apigateway-integration:
+        $ref: ./extensions/cors-preflight.yaml
+
+  /posicao-transportadores/{indiceControlePosicao}/reverter:
+    parameters:
+      - $ref: ./parameters/path.yaml#/IndiceControlePosicao
+    post:
+      tags: [Posicao]
+      operationId: reverterFechamento
+      summary: Reverte o fechamento da posição (cancelamento no ECS).
+      parameters:
+        - $ref: ./parameters/headers.yaml#/XItauApiKey
+        - $ref: ./parameters/headers.yaml#/XItauCorrelationId
+        - $ref: ./parameters/headers.yaml#/ChaveUnica
+        - $ref: ./parameters/query.yaml#/Transportadora
+      requestBody:
+        $ref: ./requestBodies/reverter-fechamento.yaml#/ReverterFechamento
+      responses:
+        '200':
+          description: Fechamento revertido.
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/posicao.yaml#/ReverterFechamentoResponse
+              examples:
+                revertido:
+                  $ref: ./examples/posicao.yaml#/ReverterFechamento
+        '400':
+          $ref: ./responses/erros.yaml#/BadRequest
+        '404':
+          $ref: ./responses/erros.yaml#/NotFound
+        '500':
+          $ref: ./responses/erros.yaml#/InternalServerError
+        '429':
+          $ref: ./responses/erros.yaml#/TooManyRequests
+        '502':
+          $ref: ./responses/erros.yaml#/BadGateway
+        '504':
+          $ref: ./responses/erros.yaml#/GatewayTimeout
+      x-amazon-apigateway-integration:
+        $ref: ./extensions/lambda-proxy.yaml
+    options:
+      tags: [CORS]
+      operationId: preflightReverterFechamento
+      summary: Preflight CORS.
+      responses:
+        '200':
+          $ref: ./responses/cors.yaml#/Preflight
+      x-amazon-apigateway-integration:
+        $ref: ./extensions/cors-preflight.yaml
+
+  /posicao-transportadores/{indiceControlePosicao}/justificativa-divergencias:
+    parameters:
+      - $ref: ./parameters/path.yaml#/IndiceControlePosicao
+    get:
+      tags: [Posicao]
+      operationId: consultarJustificativaDivergencias
+      summary: Totais e justificativas de divergência da posição.
+      parameters:
+        - $ref: ./parameters/headers.yaml#/XItauApiKey
+        - $ref: ./parameters/headers.yaml#/XItauCorrelationId
+        - $ref: ./parameters/headers.yaml#/ChaveUnica
+        - $ref: ./parameters/query.yaml#/Transportadora
+      responses:
+        '200':
+          description: Justificativas de divergência.
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/posicao.yaml#/JustificativaDivergencias
+              examples:
+                divergencias:
+                  $ref: ./examples/posicao.yaml#/JustificativaDivergencias
+        '400':
+          $ref: ./responses/erros.yaml#/BadRequest
+        '404':
+          $ref: ./responses/erros.yaml#/NotFound
+        '500':
+          $ref: ./responses/erros.yaml#/InternalServerError
+        '429':
+          $ref: ./responses/erros.yaml#/TooManyRequests
+        '502':
+          $ref: ./responses/erros.yaml#/BadGateway
+        '504':
+          $ref: ./responses/erros.yaml#/GatewayTimeout
+      x-amazon-apigateway-integration:
+        $ref: ./extensions/lambda-proxy.yaml
+    options:
+      tags: [CORS]
+      operationId: preflightJustificativaDivergencias
+      summary: Preflight CORS.
+      responses:
+        '200':
+          $ref: ./responses/cors.yaml#/Preflight
+      x-amazon-apigateway-integration:
+        $ref: ./extensions/cors-preflight.yaml
+
+  /posicao-transportadores/{indiceControlePosicao}/justificativa-termo-juridico:
+    parameters:
+      - $ref: ./parameters/path.yaml#/IndiceControlePosicao
+    get:
+      tags: [Posicao]
+      operationId: consultarJustificativaTermoJuridico
+      summary: Justificativa do termo jurídico (justificativa de fechamento).
+      parameters:
+        - $ref: ./parameters/headers.yaml#/XItauApiKey
+        - $ref: ./parameters/headers.yaml#/XItauCorrelationId
+        - $ref: ./parameters/headers.yaml#/ChaveUnica
+        - $ref: ./parameters/query.yaml#/Transportadora
+      responses:
+        '200':
+          description: Justificativa do termo jurídico.
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/posicao.yaml#/TermoJuridico
+              examples:
+                termo:
+                  $ref: ./examples/posicao.yaml#/TermoJuridico
+        '400':
+          $ref: ./responses/erros.yaml#/BadRequest
+        '404':
+          $ref: ./responses/erros.yaml#/NotFound
+        '500':
+          $ref: ./responses/erros.yaml#/InternalServerError
+        '429':
+          $ref: ./responses/erros.yaml#/TooManyRequests
+        '502':
+          $ref: ./responses/erros.yaml#/BadGateway
+        '504':
+          $ref: ./responses/erros.yaml#/GatewayTimeout
+      x-amazon-apigateway-integration:
+        $ref: ./extensions/lambda-proxy.yaml
+    options:
+      tags: [CORS]
+      operationId: preflightJustificativaTermoJuridico
+      summary: Preflight CORS.
+      responses:
+        '200':
+          $ref: ./responses/cors.yaml#/Preflight
+      x-amazon-apigateway-integration:
+        $ref: ./extensions/cors-preflight.yaml
+
+  /centralizadores/{numeroCentralizador}:
+    parameters:
+      - $ref: ./parameters/path.yaml#/NumeroCentralizador
+    get:
+      tags: [Centralizadores]
+      operationId: consultarCentralizador
+      summary: Dados do centralizador.
+      parameters:
+        - $ref: ./parameters/headers.yaml#/XItauApiKey
+        - $ref: ./parameters/headers.yaml#/XItauCorrelationId
+        - $ref: ./parameters/headers.yaml#/ChaveUnica
+        - $ref: ./parameters/query.yaml#/Transportadora
+      responses:
+        '200':
+          $ref: ./responses/centralizadores.yaml#/Centralizador
+        '400':
+          $ref: ./responses/erros.yaml#/BadRequest
+        '404':
+          $ref: ./responses/erros.yaml#/NotFound
+        '500':
+          $ref: ./responses/erros.yaml#/InternalServerError
+        '429':
+          $ref: ./responses/erros.yaml#/TooManyRequests
+        '502':
+          $ref: ./responses/erros.yaml#/BadGateway
+        '504':
+          $ref: ./responses/erros.yaml#/GatewayTimeout
+      x-amazon-apigateway-integration:
+        $ref: ./extensions/lambda-proxy.yaml
+    options:
+      tags: [CORS]
+      operationId: preflightConsultarCentralizador
+      summary: Preflight CORS.
+      responses:
+        '200':
+          $ref: ./responses/cors.yaml#/Preflight
+      x-amazon-apigateway-integration:
+        $ref: ./extensions/cors-preflight.yaml
+
+  /centralizadores/{numeroCentralizador}/fornecedores/{fornecedorId}:
+    parameters:
+      - $ref: ./parameters/path.yaml#/NumeroCentralizador
+      - $ref: ./parameters/path.yaml#/FornecedorId
+    get:
+      tags: [Centralizadores]
+      operationId: consultarFornecedor
+      summary: Fornecedor do centralizador.
+      parameters:
+        - $ref: ./parameters/headers.yaml#/XItauApiKey
+        - $ref: ./parameters/headers.yaml#/XItauCorrelationId
+        - $ref: ./parameters/headers.yaml#/ChaveUnica
+        - $ref: ./parameters/query.yaml#/Transportadora
+      responses:
+        '200':
+          $ref: ./responses/centralizadores.yaml#/Centralizador
+        '400':
+          $ref: ./responses/erros.yaml#/BadRequest
+        '404':
+          $ref: ./responses/erros.yaml#/NotFound
+        '500':
+          $ref: ./responses/erros.yaml#/InternalServerError
+        '429':
+          $ref: ./responses/erros.yaml#/TooManyRequests
+        '502':
+          $ref: ./responses/erros.yaml#/BadGateway
+        '504':
+          $ref: ./responses/erros.yaml#/GatewayTimeout
+      x-amazon-apigateway-integration:
+        $ref: ./extensions/lambda-proxy.yaml
+    options:
+      tags: [CORS]
+      operationId: preflightConsultarFornecedor
+      summary: Preflight CORS.
+      responses:
+        '200':
+          $ref: ./responses/cors.yaml#/Preflight
+      x-amazon-apigateway-integration:
+        $ref: ./extensions/cors-preflight.yaml
+
+  /centralizadores/{numeroCentralizador}/fornecedores/{fornecedorId}/bases/{baseId}:
+    parameters:
+      - $ref: ./parameters/path.yaml#/NumeroCentralizador
+      - $ref: ./parameters/path.yaml#/FornecedorId
+      - $ref: ./parameters/path.yaml#/BaseId
+    get:
+      tags: [Centralizadores]
+      operationId: consultarFornecedorNaBase
+      summary: Fornecedor do centralizador em uma base.
+      parameters:
+        - $ref: ./parameters/headers.yaml#/XItauApiKey
+        - $ref: ./parameters/headers.yaml#/XItauCorrelationId
+        - $ref: ./parameters/headers.yaml#/ChaveUnica
+        - $ref: ./parameters/query.yaml#/Transportadora
+      responses:
+        '200':
+          $ref: ./responses/centralizadores.yaml#/Centralizador
+        '400':
+          $ref: ./responses/erros.yaml#/BadRequest
+        '404':
+          $ref: ./responses/erros.yaml#/NotFound
+        '500':
+          $ref: ./responses/erros.yaml#/InternalServerError
+        '429':
+          $ref: ./responses/erros.yaml#/TooManyRequests
+        '502':
+          $ref: ./responses/erros.yaml#/BadGateway
+        '504':
+          $ref: ./responses/erros.yaml#/GatewayTimeout
+      x-amazon-apigateway-integration:
+        $ref: ./extensions/lambda-proxy.yaml
+    options:
+      tags: [CORS]
+      operationId: preflightConsultarFornecedorNaBase
+      summary: Preflight CORS.
+      responses:
+        '200':
+          $ref: ./responses/cors.yaml#/Preflight
+      x-amazon-apigateway-integration:
+        $ref: ./extensions/cors-preflight.yaml
+
+  /centralizadores/{numeroCentralizador}/polos/{poloId}:
+    parameters:
+      - $ref: ./parameters/path.yaml#/NumeroCentralizador
+      - $ref: ./parameters/path.yaml#/PoloId
+    get:
+      tags: [Centralizadores]
+      operationId: consultarPolo
+      summary: Polo do centralizador.
+      parameters:
+        - $ref: ./parameters/headers.yaml#/XItauApiKey
+        - $ref: ./parameters/headers.yaml#/XItauCorrelationId
+        - $ref: ./parameters/headers.yaml#/ChaveUnica
+        - $ref: ./parameters/query.yaml#/Transportadora
+      responses:
+        '200':
+          $ref: ./responses/centralizadores.yaml#/Centralizador
+        '400':
+          $ref: ./responses/erros.yaml#/BadRequest
+        '404':
+          $ref: ./responses/erros.yaml#/NotFound
+        '500':
+          $ref: ./responses/erros.yaml#/InternalServerError
+        '429':
+          $ref: ./responses/erros.yaml#/TooManyRequests
+        '502':
+          $ref: ./responses/erros.yaml#/BadGateway
+        '504':
+          $ref: ./responses/erros.yaml#/GatewayTimeout
+      x-amazon-apigateway-integration:
+        $ref: ./extensions/lambda-proxy.yaml
+    options:
+      tags: [CORS]
+      operationId: preflightConsultarPolo
+      summary: Preflight CORS.
+      responses:
+        '200':
+          $ref: ./responses/cors.yaml#/Preflight
+      x-amazon-apigateway-integration:
+        $ref: ./extensions/cors-preflight.yaml

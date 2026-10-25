@@ -1,0 +1,9 @@
+ReverterFechamento:
+  required: true
+  description: Body ausente, inválido ou sem `codigoTipoPosicao` => 400.
+  content:
+    application/json:
+      schema:
+        $ref: ../schemas/posicao.yaml#/ReverterFechamentoRequest
+      example:
+        codigoTipoPosicao: F
