@@ -1,9 +1,18 @@
 # A Lambda é implantada pelo próprio repositório (Lambda.Itau); aqui só é referenciada.
-# A API invoca a função sem versão (invoke_arn); $LATEST faz o check abaixo ler o mesmo código.
-# Sem qualifier o data source leria a última versão publicada.
+# O alias é o mesmo da esteira da Lambda: dev, hom ou prod.
 data "aws_lambda_function" "bff" {
   function_name = var.lambda_function_name
-  qualifier     = "$LATEST"
+  qualifier     = var.stage_name
+}
+
+# A implementação STS e a layer permissions.json são geridas pelo módulo corporativo do Itaú.
+data "aws_lambda_function" "sts_authorizer" {
+  function_name = var.sts_authorizer_function_name
+}
+
+# Role de invocação mostrada no security scheme do Itaú; não é a role de execução da função.
+data "aws_iam_role" "sts_authorizer_invoke" {
+  name = var.sts_authorizer_invoke_role_name
 }
 
 locals {
@@ -23,8 +32,10 @@ check "cors_igual_ao_da_lambda" {
 resource "aws_api_gateway_rest_api" "bff" {
   name = var.api_name
   body = templatefile("${path.module}/../dist/openapi.json", {
-    lambda_invoke_arn   = data.aws_lambda_function.bff.invoke_arn
-    cors_allowed_origin = var.cors_allowed_origin
+    lambda_invoke_arn              = data.aws_lambda_function.bff.qualified_invoke_arn
+    cors_allowed_origin            = var.cors_allowed_origin
+    sts_authorizer_credentials_arn = data.aws_iam_role.sts_authorizer_invoke.arn
+    sts_authorizer_invoke_arn      = data.aws_lambda_function.sts_authorizer.invoke_arn
   })
 
   # overwrite apaga do API Gateway o que saiu do OpenAPI, mas em API privada também
@@ -63,6 +74,7 @@ resource "aws_api_gateway_rest_api_policy" "privada" {
 }
 
 resource "aws_api_gateway_deployment" "bff" {
+  depends_on  = [aws_lambda_permission.api_gateway]
   rest_api_id = aws_api_gateway_rest_api.bff.id
 
   # Novo deployment a cada mudança no OpenAPI ou na policy; sem isso o stage segue na versão antiga.
@@ -112,6 +124,7 @@ resource "aws_lambda_permission" "api_gateway" {
   statement_id  = "AllowApiGateway-${var.api_name}"
   action        = "lambda:InvokeFunction"
   function_name = data.aws_lambda_function.bff.function_name
+  qualifier     = var.stage_name
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "${aws_api_gateway_stage.bff.execution_arn}/*"
+  source_arn    = "${aws_api_gateway_rest_api.bff.execution_arn}/${var.stage_name}/*"
 }

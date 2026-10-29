@@ -1,13 +1,17 @@
 variable "api_name" {
   description = "Nome da REST API no API Gateway."
   type        = string
-  default     = "itau-ln-bff-posicao"
+  default     = "api-posicao-custodia-numerario"
 }
 
 variable "stage_name" {
-  description = "Nome do stage (vira o primeiro segmento da URL)."
+  description = "Stage do ambiente e alias da Lambda publicados pela esteira do Itaú."
   type        = string
-  default     = "v1"
+
+  validation {
+    condition     = contains(["dev", "hom", "prod"], var.stage_name)
+    error_message = "stage_name deve ser dev, hom ou prod (igual ao alias da Lambda)."
+  }
 }
 
 variable "lambda_function_name" {
@@ -30,7 +34,7 @@ variable "cors_allowed_origin" {
 variable "endpoint_type" {
   description = "REGIONAL ou PRIVATE (acesso só via VPC endpoint)."
   type        = string
-  default     = "REGIONAL"
+  default     = "PRIVATE"
 
   validation {
     condition     = contains(["REGIONAL", "PRIVATE"], var.endpoint_type)
@@ -59,4 +63,16 @@ variable "tags" {
   description = "Tags aplicadas aos recursos."
   type        = map(string)
   default     = {}
+}
+
+variable "sts_authorizer_function_name" {
+  description = "Lambda STS criada pelo módulo itau-dy9-modules-lambda-authorizer (nome visto na tfvars de dev)."
+  type        = string
+  default     = "valida-token-posicao-custodia-numerario-v1-interno"
+}
+
+variable "sts_authorizer_invoke_role_name" {
+  description = "Role que o API Gateway assume para invocar o authorizer (vista no security scheme do Itaú)."
+  type        = string
+  default     = "custom-gateway-invoke-authorizer-role"
 }

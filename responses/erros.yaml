@@ -1,7 +1,7 @@
 BadRequest:
   description: >-
-    Headers, parâmetros ou body inválidos, transportadora sem chave cadastrada,
-    ou erro 400 devolvido pelo backend.
+    Headers, parâmetros ou body inválidos, transportadora sem base única no centralizador e polo
+    informados, ou erro 400 devolvido pelo backend.
   content:
     application/json:
       schema:
@@ -66,3 +66,25 @@ GatewayTimeout:
         messages:
           - codigo: '504'
             mensagem: Tempo de resposta excedido.
+
+Unauthorized:
+  description: Token STS ausente ou rejeitado pelo authorizer; a Lambda BFF não é invocada.
+  content:
+    application/json:
+      schema:
+        $ref: ../schemas/erros.yaml#/MessagesResponse
+      example:
+        messages:
+          - codigo: '401'
+            mensagem: Nao autorizado.
+
+Forbidden:
+  description: Acesso negado pelo authorizer ou pela policy da API privada.
+  content:
+    application/json:
+      schema:
+        $ref: ../schemas/erros.yaml#/MessagesResponse
+      example:
+        messages:
+          - codigo: '403'
+            mensagem: Acesso negado.

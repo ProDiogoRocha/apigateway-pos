@@ -8,12 +8,29 @@ Data:
     format: date
     example: '2026-10-25'
 
+Centralizador:
+  name: centralizador
+  in: query
+  required: true
+  description: Número do centralizador da transportadora. Ausente ou vazio => 400.
+  schema:
+    type: string
+
+Polo:
+  name: polo
+  in: query
+  required: true
+  description: Código do polo da transportadora no centralizador. Ausente ou vazio => 400.
+  schema:
+    type: string
+
 Transportadora:
   name: transportadora
   in: query
-  required: false
+  required: true
   description: >-
-    Código da transportadora (vazio equivale a não informado). Quando informado, a chave única é buscada no banco
-    e enviada ao backend; sem chave cadastrada => 400.
+    Código da transportadora (fornecedor no centralizador). Ausente ou vazio => 400. Com `centralizador` e `polo`,
+    a Lambda encontra a base da transportadora no centralizador e gera o JWT HS256 da chave-unica
+    com codigoFornecedor e codigoBaseFornecedor. Base não encontrada ou mais de uma base no polo => 400.
   schema:
     type: string

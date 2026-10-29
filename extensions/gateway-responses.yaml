@@ -32,7 +32,7 @@ INTEGRATION_TIMEOUT:
   responseTemplates:
     application/json: '{"messages":[{"codigo":"504","mensagem":"Tempo de resposta excedido."}]}'
 
-# Demais erros do API Gateway (ex.: 403 da API privada): corpo padrão da AWS, só acrescenta CORS.
+# Demais tipos de erro do API Gateway: corpo padrão da AWS, com CORS.
 DEFAULT_4XX:
   responseParameters:
     gatewayresponse.header.Access-Control-Allow-Origin: "'${cors_allowed_origin}'"
@@ -44,3 +44,38 @@ DEFAULT_5XX:
     gatewayresponse.header.Access-Control-Allow-Origin: "'${cors_allowed_origin}'"
   responseTemplates:
     application/json: '{"message":$context.error.messageString}'
+
+UNAUTHORIZED:
+  statusCode: '401'
+  responseParameters:
+    gatewayresponse.header.Access-Control-Allow-Origin: "'${cors_allowed_origin}'"
+  responseTemplates:
+    application/json: '{"messages":[{"codigo":"401","mensagem":"Nao autorizado."}]}'
+
+ACCESS_DENIED:
+  statusCode: '403'
+  responseParameters:
+    gatewayresponse.header.Access-Control-Allow-Origin: "'${cors_allowed_origin}'"
+  responseTemplates:
+    application/json: '{"messages":[{"codigo":"403","mensagem":"Acesso negado."}]}'
+
+AUTHORIZER_FAILURE:
+  statusCode: '500'
+  responseParameters:
+    gatewayresponse.header.Access-Control-Allow-Origin: "'${cors_allowed_origin}'"
+  responseTemplates:
+    application/json: '{"messages":[{"codigo":"500","mensagem":"Falha no authorizer STS."}]}'
+
+AUTHORIZER_CONFIGURATION_ERROR:
+  statusCode: '500'
+  responseParameters:
+    gatewayresponse.header.Access-Control-Allow-Origin: "'${cors_allowed_origin}'"
+  responseTemplates:
+    application/json: '{"messages":[{"codigo":"500","mensagem":"Falha na configuracao do authorizer STS."}]}'
+
+BAD_REQUEST_PARAMETERS:
+  statusCode: '400'
+  responseParameters:
+    gatewayresponse.header.Access-Control-Allow-Origin: "'${cors_allowed_origin}'"
+  responseTemplates:
+    application/json: '{"messages":[{"codigo":"400","mensagem":"Parametros obrigatorios ausentes ou invalidos."}]}'

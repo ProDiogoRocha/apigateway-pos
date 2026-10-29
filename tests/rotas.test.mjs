@@ -57,6 +57,20 @@ test('toda rota da Lambda documenta os headers obrigatórios', () => {
   }
 });
 
+// Mesmos query params que o BffRequestHandler.cs exige (400 se ausentes); os centralizadores não exigem nenhum.
+const queryDaLambda = (path) => [
+  ...(path === '/posicao-transportadores' ? ['data'] : []),
+  ...(path.startsWith('/posicao-transportadores') ? ['centralizador', 'polo', 'transportadora'] : []),
+];
+
+test('toda rota da Lambda declara como obrigatórios exatamente os query params que ela exige', () => {
+  for (const { metodo, path, operacao } of daLambda) {
+    const query = (operacao.parameters ?? []).filter((p) => p.in === 'query');
+    assert.ok(query.every((p) => p.required), `${metodo} ${path}`);
+    assert.deepEqual(query.map((p) => p.name).sort(), queryDaLambda(path).sort(), `${metodo} ${path}`);
+  }
+});
+
 test('todo parâmetro de rota está declarado', () => {
   for (const { metodo, path, item, operacao } of daLambda) {
     const declarados = [...(item.parameters ?? []), ...(operacao.parameters ?? [])]
@@ -121,8 +135,54 @@ test('todo erro gerado pelo API Gateway leva o header CORS', () => {
   }
 });
 
-// O Terraform passa o bundle por templatefile(): qualquer ${...} ou %{...} além das duas variáveis quebra o deploy.
+// O Terraform passa o bundle por templatefile(): qualquer ${...} ou %{...} além das variáveis declaradas quebra o deploy.
 test('o bundle só usa as variáveis que o Terraform preenche', () => {
   const variaveis = new Set([...bruto.matchAll(/[$%]\{([^}]*)\}/g)].map(([trecho]) => trecho));
-  assert.deepEqual([...variaveis].sort(), ['${cors_allowed_origin}', '${lambda_invoke_arn}']);
+  assert.deepEqual([...variaveis].sort(), ['${cors_allowed_origin}', '${lambda_invoke_arn}', '${sts_authorizer_credentials_arn}', '${sts_authorizer_invoke_arn}']);
+});
+
+
+test('as oito operações exigem o authorizer STS, com read nas consultas e write na reversão', () => {
+  for (const { metodo, path, operacao } of daLambda) {
+    assert.deepEqual(operacao.security, [{
+      APIGatewaySTSAuthorizer: [`numerario-posicao-transportadores.${metodo === 'POST' ? 'write' : 'read'}`],
+    }], `${metodo} ${path}`);
+    assert.ok('401' in operacao.responses && '403' in operacao.responses, path);
+  }
+  const scheme = api.components.securitySchemes.APIGatewaySTSAuthorizer;
+  assert.equal(scheme.type, 'apiKey');
+  assert.equal(scheme.name, 'authorization');
+  assert.equal(scheme['x-amazon-apigateway-authtype'], 'custom');
+  const authorizer = scheme['x-amazon-apigateway-authorizer'];
+  assert.equal(authorizer.authorizerUri, '${sts_authorizer_invoke_arn}');
+  assert.equal(authorizer.authorizerCredentials, '${sts_authorizer_credentials_arn}');
+  assert.equal(authorizer.type, 'request');
+  assert.equal(authorizer.identitySource, 'method.request.header.authorization');
+  assert.equal(authorizer.authorizerResultTtlInSeconds, 0);
+});
+
+test('OPTIONS é público e aceita Authorization sem exigir chave-unica do front', () => {
+  for (const [path, item] of Object.entries(api.paths)) {
+    assert.deepEqual(item.options.security, [], path);
+    assert.ok(liberados(path, 'Access-Control-Allow-Headers').includes('authorization'), path);
+    assert.ok(!liberados(path, 'Access-Control-Allow-Headers').includes('chave-unica'), path);
+  }
+});
+
+test('a validação de presença dos parâmetros é aplicada às operações e não ao preflight', () => {
+  assert.deepEqual(api['x-amazon-apigateway-request-validators'].parameters, {
+    validateRequestBody: false, validateRequestParameters: true,
+  });
+  for (const { path, metodo, operacao } of operacoes) {
+    assert.equal(operacao['x-amazon-apigateway-request-validator'], metodo === 'OPTIONS' ? undefined : 'parameters', path);
+  }
+});
+
+test('STS rejeitado, acesso negado e falha do authorizer têm status distintos e erros estruturados', () => {
+  for (const [tipo, status] of Object.entries({
+    UNAUTHORIZED: '401', ACCESS_DENIED: '403', AUTHORIZER_FAILURE: '500', AUTHORIZER_CONFIGURATION_ERROR: '500',
+  })) {
+    assert.equal(gatewayResponses[tipo].statusCode, status, tipo);
+    assert.equal(JSON.parse(gatewayResponses[tipo].responseTemplates['application/json']).messages[0].codigo, status, tipo);
+  }
 });

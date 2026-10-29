@@ -4,3 +4,7 @@ infra/.terraform/
 *.tfstate
 *.tfstate.*
 *.tfplan
+
+# Configuração local dos cURLs de dev (tokens e credenciais).
+curl/dev/*.local.env
+curl/dev/*.local.postman_environment.json

@@ -1,0 +1,15 @@
+# Confirmado na foto do arquivo do Itaú: REQUEST, header authorization, TTL 0 e role de invocação.
+# A AWS documenta o tipo como request (minúsculas); a foto contém Request.
+type: apiKey
+name: authorization
+in: header
+description: >-
+  Token STS em Authorization: Bearer <token>. As permissões read/write são verificadas
+  pelo authorizer corporativo e seu permissions.json; declará-las no contrato não as implementa.
+x-amazon-apigateway-authtype: custom
+x-amazon-apigateway-authorizer:
+  type: request
+  authorizerUri: '${sts_authorizer_invoke_arn}'
+  authorizerCredentials: '${sts_authorizer_credentials_arn}'
+  identitySource: method.request.header.authorization
+  authorizerResultTtlInSeconds: 0

@@ -1,0 +1,461 @@
+{
+  "info": {
+    "name": "BFF Posição - Desenvolvimento",
+    "description": "Oito operações do API Gateway em dev, obtenção de STS e preflight CORS. Configure o environment antes de enviar requests. Reversão altera a posição selecionada.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "STS",
+      "item": [
+        {
+          "name": "00 - Obter token STS",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "url": "{{stsUrl}}",
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "grant_type",
+                  "value": "client_credentials"
+                },
+                {
+                  "key": "client_id",
+                  "value": "{{clientId}}"
+                },
+                {
+                  "key": "client_secret",
+                  "value": "{{clientSecret}}"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "  const token = pm.response.json().access_token;",
+                  "  if (token) pm.environment.set(\"tokenSts\", token);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Centralizadores",
+      "item": [
+        {
+          "name": "01 - Consultar centralizador",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "authorization",
+                "value": "Bearer {{tokenSts}}"
+              },
+              {
+                "key": "x-itau-apikey",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "x-itau-correlationID",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/centralizadores/{{centralizador}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "centralizadores",
+                "{{centralizador}}"
+              ],
+              "query": []
+            },
+            "description": "Consultar centralizador. Permissão STS: numerario-posicao-transportadores.read."
+          }
+        },
+        {
+          "name": "02 - Consultar fornecedor",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "authorization",
+                "value": "Bearer {{tokenSts}}"
+              },
+              {
+                "key": "x-itau-apikey",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "x-itau-correlationID",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/centralizadores/{{centralizador}}/fornecedores/{{transportadora}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "centralizadores",
+                "{{centralizador}}",
+                "fornecedores",
+                "{{transportadora}}"
+              ],
+              "query": []
+            },
+            "description": "Consultar fornecedor. Permissão STS: numerario-posicao-transportadores.read."
+          }
+        },
+        {
+          "name": "03 - Consultar fornecedor na base",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "authorization",
+                "value": "Bearer {{tokenSts}}"
+              },
+              {
+                "key": "x-itau-apikey",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "x-itau-correlationID",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/centralizadores/{{centralizador}}/fornecedores/{{transportadora}}/bases/{{baseId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "centralizadores",
+                "{{centralizador}}",
+                "fornecedores",
+                "{{transportadora}}",
+                "bases",
+                "{{baseId}}"
+              ],
+              "query": []
+            },
+            "description": "Consultar fornecedor na base. Permissão STS: numerario-posicao-transportadores.read."
+          }
+        },
+        {
+          "name": "04 - Consultar polo",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "authorization",
+                "value": "Bearer {{tokenSts}}"
+              },
+              {
+                "key": "x-itau-apikey",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "x-itau-correlationID",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/centralizadores/{{centralizador}}/polos/{{polo}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "centralizadores",
+                "{{centralizador}}",
+                "polos",
+                "{{polo}}"
+              ],
+              "query": []
+            },
+            "description": "Consultar polo. Permissão STS: numerario-posicao-transportadores.read."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Posição",
+      "item": [
+        {
+          "name": "05 - Consultar cards",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "authorization",
+                "value": "Bearer {{tokenSts}}"
+              },
+              {
+                "key": "x-itau-apikey",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "x-itau-correlationID",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/posicao-transportadores?data={{dataMovimento}}&centralizador={{centralizador}}&polo={{polo}}&transportadora={{transportadora}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "posicao-transportadores"
+              ],
+              "query": [
+                {
+                  "key": "data",
+                  "value": "{{dataMovimento}}"
+                },
+                {
+                  "key": "centralizador",
+                  "value": "{{centralizador}}"
+                },
+                {
+                  "key": "polo",
+                  "value": "{{polo}}"
+                },
+                {
+                  "key": "transportadora",
+                  "value": "{{transportadora}}"
+                }
+              ]
+            },
+            "description": "Consultar cards. Permissão STS: numerario-posicao-transportadores.read."
+          }
+        },
+        {
+          "name": "06 - Consultar justificativa de divergências",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "authorization",
+                "value": "Bearer {{tokenSts}}"
+              },
+              {
+                "key": "x-itau-apikey",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "x-itau-correlationID",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/posicao-transportadores/{{indiceControlePosicao}}/justificativa-divergencias?centralizador={{centralizador}}&polo={{polo}}&transportadora={{transportadora}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "posicao-transportadores",
+                "{{indiceControlePosicao}}",
+                "justificativa-divergencias"
+              ],
+              "query": [
+                {
+                  "key": "centralizador",
+                  "value": "{{centralizador}}"
+                },
+                {
+                  "key": "polo",
+                  "value": "{{polo}}"
+                },
+                {
+                  "key": "transportadora",
+                  "value": "{{transportadora}}"
+                }
+              ]
+            },
+            "description": "Consultar justificativa de divergências. Permissão STS: numerario-posicao-transportadores.read."
+          }
+        },
+        {
+          "name": "07 - Consultar justificativa do termo jurídico",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "authorization",
+                "value": "Bearer {{tokenSts}}"
+              },
+              {
+                "key": "x-itau-apikey",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "x-itau-correlationID",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/posicao-transportadores/{{indiceControlePosicao}}/justificativa-termo-juridico?centralizador={{centralizador}}&polo={{polo}}&transportadora={{transportadora}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "posicao-transportadores",
+                "{{indiceControlePosicao}}",
+                "justificativa-termo-juridico"
+              ],
+              "query": [
+                {
+                  "key": "centralizador",
+                  "value": "{{centralizador}}"
+                },
+                {
+                  "key": "polo",
+                  "value": "{{polo}}"
+                },
+                {
+                  "key": "transportadora",
+                  "value": "{{transportadora}}"
+                }
+              ]
+            },
+            "description": "Consultar justificativa do termo jurídico. Permissão STS: numerario-posicao-transportadores.read."
+          }
+        },
+        {
+          "name": "08 - Reverter fechamento",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "authorization",
+                "value": "Bearer {{tokenSts}}"
+              },
+              {
+                "key": "x-itau-apikey",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "x-itau-correlationID",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/posicao-transportadores/{{indiceControlePosicao}}/reverter?centralizador={{centralizador}}&polo={{polo}}&transportadora={{transportadora}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "posicao-transportadores",
+                "{{indiceControlePosicao}}",
+                "reverter"
+              ],
+              "query": [
+                {
+                  "key": "centralizador",
+                  "value": "{{centralizador}}"
+                },
+                {
+                  "key": "polo",
+                  "value": "{{polo}}"
+                },
+                {
+                  "key": "transportadora",
+                  "value": "{{transportadora}}"
+                }
+              ]
+            },
+            "description": "Reverter fechamento. Permissão STS: numerario-posicao-transportadores.write. Altera dados em dev; use massa de teste.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigoTipoPosicao\": \"{{codigoTipoPosicao}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "CORS",
+      "item": [
+        {
+          "name": "09 - Preflight sem token",
+          "request": {
+            "method": "OPTIONS",
+            "url": "{{baseUrl}}{{corsPath}}",
+            "header": [
+              {
+                "key": "Origin",
+                "value": "{{corsOrigin}}"
+              },
+              {
+                "key": "Access-Control-Request-Method",
+                "value": "{{corsMethod}}"
+              },
+              {
+                "key": "Access-Control-Request-Headers",
+                "value": "authorization,x-itau-apikey,x-itau-correlationID,content-type"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

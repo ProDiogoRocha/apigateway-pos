@@ -14,7 +14,7 @@ servers:
       region:
         default: sa-east-1
       stage:
-        default: v1
+        default: dev
 tags:
   - name: Posicao
     description: Posição das transportadoras (ECS).
@@ -23,19 +23,34 @@ tags:
   - name: CORS
     description: Preflight respondido pelo API Gateway, sem invocar a Lambda.
 
+components:
+  securitySchemes:
+    APIGatewaySTSAuthorizer:
+      $ref: ./securitySchemes/APIGatewaySTSAuthorizer.yaml
+
+x-amazon-apigateway-request-validators:
+  parameters:
+    validateRequestBody: false
+    validateRequestParameters: true
+
 x-amazon-apigateway-gateway-responses:
   $ref: ./extensions/gateway-responses.yaml
 
 paths:
   /posicao-transportadores:
     get:
+      security:
+        - APIGatewaySTSAuthorizer:
+            - numerario-posicao-transportadores.read
+      x-amazon-apigateway-request-validator: parameters
       tags: [Posicao]
       operationId: consultarCards
       summary: Cards de posição da data de movimento.
       parameters:
         - $ref: ./parameters/headers.yaml#/XItauApiKey
         - $ref: ./parameters/headers.yaml#/XItauCorrelationId
-        - $ref: ./parameters/headers.yaml#/ChaveUnica
+        - $ref: ./parameters/query.yaml#/Centralizador
+        - $ref: ./parameters/query.yaml#/Polo
         - $ref: ./parameters/query.yaml#/Transportadora
         - $ref: ./parameters/query.yaml#/Data
       responses:
@@ -50,6 +65,10 @@ paths:
                   $ref: ./examples/posicao.yaml#/ConsultaCards
         '400':
           $ref: ./responses/erros.yaml#/BadRequest
+        '401':
+          $ref: ./responses/erros.yaml#/Unauthorized
+        '403':
+          $ref: ./responses/erros.yaml#/Forbidden
         '404':
           $ref: ./responses/erros.yaml#/NotFound
         '500':
@@ -63,6 +82,7 @@ paths:
       x-amazon-apigateway-integration:
         $ref: ./extensions/lambda-proxy.yaml
     options:
+      security: []
       tags: [CORS]
       operationId: preflightConsultarCards
       summary: Preflight CORS.
@@ -76,13 +96,18 @@ paths:
     parameters:
       - $ref: ./parameters/path.yaml#/IndiceControlePosicao
     post:
+      security:
+        - APIGatewaySTSAuthorizer:
+            - numerario-posicao-transportadores.write
+      x-amazon-apigateway-request-validator: parameters
       tags: [Posicao]
       operationId: reverterFechamento
       summary: Reverte o fechamento da posição (cancelamento no ECS).
       parameters:
         - $ref: ./parameters/headers.yaml#/XItauApiKey
         - $ref: ./parameters/headers.yaml#/XItauCorrelationId
-        - $ref: ./parameters/headers.yaml#/ChaveUnica
+        - $ref: ./parameters/query.yaml#/Centralizador
+        - $ref: ./parameters/query.yaml#/Polo
         - $ref: ./parameters/query.yaml#/Transportadora
       requestBody:
         $ref: ./requestBodies/reverter-fechamento.yaml#/ReverterFechamento
@@ -98,6 +123,10 @@ paths:
                   $ref: ./examples/posicao.yaml#/ReverterFechamento
         '400':
           $ref: ./responses/erros.yaml#/BadRequest
+        '401':
+          $ref: ./responses/erros.yaml#/Unauthorized
+        '403':
+          $ref: ./responses/erros.yaml#/Forbidden
         '404':
           $ref: ./responses/erros.yaml#/NotFound
         '500':
@@ -111,6 +140,7 @@ paths:
       x-amazon-apigateway-integration:
         $ref: ./extensions/lambda-proxy.yaml
     options:
+      security: []
       tags: [CORS]
       operationId: preflightReverterFechamento
       summary: Preflight CORS.
@@ -124,13 +154,18 @@ paths:
     parameters:
       - $ref: ./parameters/path.yaml#/IndiceControlePosicao
     get:
+      security:
+        - APIGatewaySTSAuthorizer:
+            - numerario-posicao-transportadores.read
+      x-amazon-apigateway-request-validator: parameters
       tags: [Posicao]
       operationId: consultarJustificativaDivergencias
       summary: Totais e justificativas de divergência da posição.
       parameters:
         - $ref: ./parameters/headers.yaml#/XItauApiKey
         - $ref: ./parameters/headers.yaml#/XItauCorrelationId
-        - $ref: ./parameters/headers.yaml#/ChaveUnica
+        - $ref: ./parameters/query.yaml#/Centralizador
+        - $ref: ./parameters/query.yaml#/Polo
         - $ref: ./parameters/query.yaml#/Transportadora
       responses:
         '200':
@@ -144,6 +179,10 @@ paths:
                   $ref: ./examples/posicao.yaml#/JustificativaDivergencias
         '400':
           $ref: ./responses/erros.yaml#/BadRequest
+        '401':
+          $ref: ./responses/erros.yaml#/Unauthorized
+        '403':
+          $ref: ./responses/erros.yaml#/Forbidden
         '404':
           $ref: ./responses/erros.yaml#/NotFound
         '500':
@@ -157,6 +196,7 @@ paths:
       x-amazon-apigateway-integration:
         $ref: ./extensions/lambda-proxy.yaml
     options:
+      security: []
       tags: [CORS]
       operationId: preflightJustificativaDivergencias
       summary: Preflight CORS.
@@ -170,13 +210,18 @@ paths:
     parameters:
       - $ref: ./parameters/path.yaml#/IndiceControlePosicao
     get:
+      security:
+        - APIGatewaySTSAuthorizer:
+            - numerario-posicao-transportadores.read
+      x-amazon-apigateway-request-validator: parameters
       tags: [Posicao]
       operationId: consultarJustificativaTermoJuridico
       summary: Justificativa do termo jurídico (justificativa de fechamento).
       parameters:
         - $ref: ./parameters/headers.yaml#/XItauApiKey
         - $ref: ./parameters/headers.yaml#/XItauCorrelationId
-        - $ref: ./parameters/headers.yaml#/ChaveUnica
+        - $ref: ./parameters/query.yaml#/Centralizador
+        - $ref: ./parameters/query.yaml#/Polo
         - $ref: ./parameters/query.yaml#/Transportadora
       responses:
         '200':
@@ -190,6 +235,10 @@ paths:
                   $ref: ./examples/posicao.yaml#/TermoJuridico
         '400':
           $ref: ./responses/erros.yaml#/BadRequest
+        '401':
+          $ref: ./responses/erros.yaml#/Unauthorized
+        '403':
+          $ref: ./responses/erros.yaml#/Forbidden
         '404':
           $ref: ./responses/erros.yaml#/NotFound
         '500':
@@ -203,6 +252,7 @@ paths:
       x-amazon-apigateway-integration:
         $ref: ./extensions/lambda-proxy.yaml
     options:
+      security: []
       tags: [CORS]
       operationId: preflightJustificativaTermoJuridico
       summary: Preflight CORS.
@@ -216,19 +266,25 @@ paths:
     parameters:
       - $ref: ./parameters/path.yaml#/NumeroCentralizador
     get:
+      security:
+        - APIGatewaySTSAuthorizer:
+            - numerario-posicao-transportadores.read
+      x-amazon-apigateway-request-validator: parameters
       tags: [Centralizadores]
       operationId: consultarCentralizador
       summary: Dados do centralizador.
       parameters:
         - $ref: ./parameters/headers.yaml#/XItauApiKey
         - $ref: ./parameters/headers.yaml#/XItauCorrelationId
-        - $ref: ./parameters/headers.yaml#/ChaveUnica
-        - $ref: ./parameters/query.yaml#/Transportadora
       responses:
         '200':
           $ref: ./responses/centralizadores.yaml#/Centralizador
         '400':
           $ref: ./responses/erros.yaml#/BadRequest
+        '401':
+          $ref: ./responses/erros.yaml#/Unauthorized
+        '403':
+          $ref: ./responses/erros.yaml#/Forbidden
         '404':
           $ref: ./responses/erros.yaml#/NotFound
         '500':
@@ -242,6 +298,7 @@ paths:
       x-amazon-apigateway-integration:
         $ref: ./extensions/lambda-proxy.yaml
     options:
+      security: []
       tags: [CORS]
       operationId: preflightConsultarCentralizador
       summary: Preflight CORS.
@@ -256,19 +313,25 @@ paths:
       - $ref: ./parameters/path.yaml#/NumeroCentralizador
       - $ref: ./parameters/path.yaml#/FornecedorId
     get:
+      security:
+        - APIGatewaySTSAuthorizer:
+            - numerario-posicao-transportadores.read
+      x-amazon-apigateway-request-validator: parameters
       tags: [Centralizadores]
       operationId: consultarFornecedor
       summary: Fornecedor do centralizador.
       parameters:
         - $ref: ./parameters/headers.yaml#/XItauApiKey
         - $ref: ./parameters/headers.yaml#/XItauCorrelationId
-        - $ref: ./parameters/headers.yaml#/ChaveUnica
-        - $ref: ./parameters/query.yaml#/Transportadora
       responses:
         '200':
           $ref: ./responses/centralizadores.yaml#/Centralizador
         '400':
           $ref: ./responses/erros.yaml#/BadRequest
+        '401':
+          $ref: ./responses/erros.yaml#/Unauthorized
+        '403':
+          $ref: ./responses/erros.yaml#/Forbidden
         '404':
           $ref: ./responses/erros.yaml#/NotFound
         '500':
@@ -282,6 +345,7 @@ paths:
       x-amazon-apigateway-integration:
         $ref: ./extensions/lambda-proxy.yaml
     options:
+      security: []
       tags: [CORS]
       operationId: preflightConsultarFornecedor
       summary: Preflight CORS.
@@ -297,19 +361,25 @@ paths:
       - $ref: ./parameters/path.yaml#/FornecedorId
       - $ref: ./parameters/path.yaml#/BaseId
     get:
+      security:
+        - APIGatewaySTSAuthorizer:
+            - numerario-posicao-transportadores.read
+      x-amazon-apigateway-request-validator: parameters
       tags: [Centralizadores]
       operationId: consultarFornecedorNaBase
       summary: Fornecedor do centralizador em uma base.
       parameters:
         - $ref: ./parameters/headers.yaml#/XItauApiKey
         - $ref: ./parameters/headers.yaml#/XItauCorrelationId
-        - $ref: ./parameters/headers.yaml#/ChaveUnica
-        - $ref: ./parameters/query.yaml#/Transportadora
       responses:
         '200':
           $ref: ./responses/centralizadores.yaml#/Centralizador
         '400':
           $ref: ./responses/erros.yaml#/BadRequest
+        '401':
+          $ref: ./responses/erros.yaml#/Unauthorized
+        '403':
+          $ref: ./responses/erros.yaml#/Forbidden
         '404':
           $ref: ./responses/erros.yaml#/NotFound
         '500':
@@ -323,6 +393,7 @@ paths:
       x-amazon-apigateway-integration:
         $ref: ./extensions/lambda-proxy.yaml
     options:
+      security: []
       tags: [CORS]
       operationId: preflightConsultarFornecedorNaBase
       summary: Preflight CORS.
@@ -337,19 +408,25 @@ paths:
       - $ref: ./parameters/path.yaml#/NumeroCentralizador
       - $ref: ./parameters/path.yaml#/PoloId
     get:
+      security:
+        - APIGatewaySTSAuthorizer:
+            - numerario-posicao-transportadores.read
+      x-amazon-apigateway-request-validator: parameters
       tags: [Centralizadores]
       operationId: consultarPolo
       summary: Polo do centralizador.
       parameters:
         - $ref: ./parameters/headers.yaml#/XItauApiKey
         - $ref: ./parameters/headers.yaml#/XItauCorrelationId
-        - $ref: ./parameters/headers.yaml#/ChaveUnica
-        - $ref: ./parameters/query.yaml#/Transportadora
       responses:
         '200':
           $ref: ./responses/centralizadores.yaml#/Centralizador
         '400':
           $ref: ./responses/erros.yaml#/BadRequest
+        '401':
+          $ref: ./responses/erros.yaml#/Unauthorized
+        '403':
+          $ref: ./responses/erros.yaml#/Forbidden
         '404':
           $ref: ./responses/erros.yaml#/NotFound
         '500':
@@ -363,6 +440,7 @@ paths:
       x-amazon-apigateway-integration:
         $ref: ./extensions/lambda-proxy.yaml
     options:
+      security: []
       tags: [CORS]
       operationId: preflightConsultarPolo
       summary: Preflight CORS.

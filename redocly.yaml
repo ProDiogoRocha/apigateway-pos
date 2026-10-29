@@ -2,8 +2,7 @@ extends:
   - recommended
 
 rules:
-  # x-itau-apikey é validada pela Lambda; o API Gateway não tem authorizer (ver AJUSTES_PENDENTES_POSICAO.md).
-  security-defined: off
+  security-defined: error
   # O preflight OPTIONS é um mock que só responde 200.
   operation-4xx-response: off
   # API interna.

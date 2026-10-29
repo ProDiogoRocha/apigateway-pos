@@ -6,7 +6,8 @@
     "lint": "redocly lint itau-ln-infra-bff-posicao-apigateway.yaml",
     "bundle": "redocly bundle itau-ln-infra-bff-posicao-apigateway.yaml --dereferenced --output dist/openapi.json",
     "test": "npm run bundle && node --test \"tests/*.test.mjs\"",
-    "test:infra": "npm run bundle && terraform -chdir=infra test"
+    "test:infra": "npm run bundle && terraform -chdir=infra test",
+    "bundle:itau": "npm run bundle && node scripts/render-itau.mjs"
   },
   "devDependencies": {
     "@redocly/cli": "2.71.0"

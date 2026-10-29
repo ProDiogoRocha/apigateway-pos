@@ -1,6 +1,6 @@
 # Preflight CORS respondido pelo API Gateway (mock), sem invocar a Lambda.
 # ${cors_allowed_origin} é preenchido pelo Terraform e deve ser igual ao CORS_ALLOWED_ORIGIN da Lambda.
-# Authorization fica liberado porque o front pode mandá-lo (interceptor); a Lambda o ignora.
+# Authorization é consumido pelo authorizer STS. A chave-unica é gerada pela Lambda.
 # Max-Age: toda chamada tem header customizado, então sem cache o navegador faz um preflight por chamada.
 type: mock
 requestTemplates:
@@ -11,5 +11,5 @@ responses:
     responseParameters:
       method.response.header.Access-Control-Allow-Origin: "'${cors_allowed_origin}'"
       method.response.header.Access-Control-Allow-Methods: "'GET,POST,OPTIONS'"
-      method.response.header.Access-Control-Allow-Headers: "'Content-Type,Authorization,x-itau-apikey,x-itau-correlationID,chave-unica'"
+      method.response.header.Access-Control-Allow-Headers: "'Content-Type,Authorization,x-itau-apikey,x-itau-correlationID'"
       method.response.header.Access-Control-Max-Age: "'600'"

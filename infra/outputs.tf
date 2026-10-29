@@ -4,6 +4,6 @@ output "rest_api_id" {
 }
 
 output "invoke_url" {
-  description = "URL base que o front chama (ex.: <invoke_url>/posicao-transportadores)."
+  description = "URL execute-api do stage dev/hom/prod; não inclui domínio ou mapping corporativo."
   value       = aws_api_gateway_stage.bff.invoke_url
 }
