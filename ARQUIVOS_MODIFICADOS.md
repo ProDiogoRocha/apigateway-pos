@@ -3,7 +3,23 @@
 Base: fotos 122–170 da sessão "JWT e iupipes.yaml no Itaú", foto adicional do
 `APIGatewaySTSAuthorizer.yaml` e código atual da Lambda.
 
+## Correção do Terraform no banco
+
+Se a esteira mostrar `api_gateway_domain_name` e `environment` não declaradas,
+junto com `../dist/openapi.json` ausente, conferir a combinação de arquivos
+corporativos e locais conforme [CORRECAO_TERRAFORM_ITAU.md](CORRECAO_TERRAFORM_ITAU.md).
+O `infra/` deste repo é uma referência local. A pasta `correcao-itau/infra/` agora
+contém main.tf e variables.tf recuperados das fotos do template corporativo.
+
 ## O que copiar ao Itaú
+
+**Correção dos três erros de Terraform:** copiar
+[`correcao-itau/infra/main.tf`](correcao-itau/infra/main.tf) para `infra/main.tf` do banco e
+[`correcao-itau/infra/variables.tf`](correcao-itau/infra/variables.tf) para `infra/variables.tf`.
+Esses arquivos recuperam os módulos e as entradas do template original mostrado nas fotos
+novas. Conferir as instruções de [correcao-itau/README.md](correcao-itau/README.md), em especial
+os outputs copiados da referência. Preservar data.tf, iamsr.tf e os templates corporativos.
+
 
 **Contrato:** gerar com `npm run bundle:itau` usando ambiente, origem do front, VPCEs
 e URL reais (ver README). O arquivo resultante fica em
@@ -31,8 +47,14 @@ corrigida a orientação sobre stage/URL. A lista geral da Lambda continua no ar
 | `redocly.yaml` | Validação de segurança religada |
 | `scripts/render-itau.mjs`, `package.json` | Gerador de OpenAPI por ambiente para os módulos do banco |
 | `tests/rotas.test.mjs`, `tests/render-itau.test.mjs` | Contrato, segurança, contas, aliases, roles, CORS e policy privada |
-| `infra/main.tf`, `variables.tf`, `outputs.tf`, `tests/apigateway.tftest.hcl` | Referência local: alias do ambiente, authorizer existente e role corporativa; testes simulados |
+| `correcao-itau/infra/main.tf`, `correcao-itau/infra/variables.tf` | Recuperação do template corporativo das fotos; estes são os arquivos Terraform para copiar ao banco |
 | `README.md`, `AJUSTES_PENDENTES_POSICAO.md`, `ARQUIVOS_MODIFICADOS.md` | Procedimento de cópia, evidências e pendências |
+
+## Terraform somente para referência local
+
+`infra/main.tf`, `infra/variables.tf`, `infra/outputs.tf`, `infra/versions.tf`,
+`infra/.terraform.lock.hcl` e `infra/tests/` pertencem à implementação local de
+referência. Não entram na lista de arquivos para copiar ao banco.
 
 ## Preservar no banco
 

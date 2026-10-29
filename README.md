@@ -83,6 +83,19 @@ Não copie o template raiz com placeholders de Terraform diretamente para a este
 A lista de arquivos e as pendências estão em [ARQUIVOS_MODIFICADOS.md](ARQUIVOS_MODIFICADOS.md)
 e [AJUSTES_PENDENTES_POSICAO.md](AJUSTES_PENDENTES_POSICAO.md).
 
+## Corrigir os erros de Terraform no Itaú
+
+A pasta [correcao-itau](correcao-itau/README.md) contém `main.tf` e `variables.tf`
+recuperados das fotos do template original do banco, prontos para copiar aos paths
+correspondentes. Ela preserva os três módulos corporativos e elimina a dependência
+do bundle local no Terraform. Conferir também os outputs copiados da referência.
+
+
+O [roteiro de correção](CORRECAO_TERRAFORM_ITAU.md) explica os erros de variáveis
+corporativas não declaradas e de `dist/openapi.json` ausente quando arquivos das
+duas implementações são combinados. Conferir os arquivos atuais do banco antes
+de modificar suas entradas, módulos ou outputs.
+
 ## Terraform de referência
 
 | Variável | Uso |
